@@ -32,12 +32,12 @@ message(STATUS "Using glfw lib at: ${GLFW_LIB}")
 # ImGui
 set(LIB_NAME ImGui)
 message(STATUS "ADDING ${LIB_NAME}")
-file(GLOB ImGui ${PROJECT_SOURCE_DIR}/libs/imgui/*.cpp)
-file(GLOB ImGui_headers ${PROJECT_SOURCE_DIR}/libs/imgui/*.h)
-file(GLOB ImGui_vulkan ${PROJECT_SOURCE_DIR}/libs/imgui/backends/*vulkan.cpp)
-file(GLOB ImGui_vulkan_headers ${PROJECT_SOURCE_DIR}/libs/imgui/backends/*vulkan.h)
-file(GLOB ImGui_glfw ${PROJECT_SOURCE_DIR}/libs/imgui/backends/*glfw.cpp)
-file(GLOB ImGui_glfw_headers ${PROJECT_SOURCE_DIR}/libs/imgui/backends/*glfw.h)
+file(GLOB ImGui ${PROJECT_SOURCE_DIR}/libs/Walnut/vendor/imgui/*.cpp)
+file(GLOB ImGui_headers ${PROJECT_SOURCE_DIR}/libs/Walnut/vendor/imgui/*.h)
+file(GLOB ImGui_vulkan ${PROJECT_SOURCE_DIR}/libs/Walnut/vendor/imgui/backends/*vulkan.cpp)
+file(GLOB ImGui_vulkan_headers ${PROJECT_SOURCE_DIR}/libs/Walnut/vendor/imgui/backends/*vulkan.h)
+file(GLOB ImGui_glfw ${PROJECT_SOURCE_DIR}/libs/Walnut/vendor/imgui/backends/*glfw.cpp)
+file(GLOB ImGui_glfw_headers ${PROJECT_SOURCE_DIR}/libs/Walnut/vendor/imgui/backends/*glfw.h)
 add_library(${LIB_NAME}
     ${ImGui}
     ${ImGui_headers}
@@ -51,7 +51,7 @@ target_compile_definitions(${LIB_NAME} PUBLIC
     WL_DIST
 )
 target_include_directories(${LIB_NAME} PUBLIC
-    ${PROJECT_SOURCE_DIR}/libs/imgui
+    ${PROJECT_SOURCE_DIR}/libs/Walnut/vendor/imgui
     ${Vulkan_INCLUDE_DIRS}
     ${GLFW_INCLUDE_DIRS}
 )
@@ -62,14 +62,14 @@ target_link_libraries(${LIB_NAME} PUBLIC
 # Walnut
 set(LIB_NAME Walnut)
 message(STATUS "ADDING ${LIB_NAME}")
-file(GLOB Walnut ${PROJECT_SOURCE_DIR}/libs/Walnut/*.cpp)
-file(GLOB Walnut_headers ${PROJECT_SOURCE_DIR}/libs/Walnut/*.h)
+file(GLOB Walnut ${PROJECT_SOURCE_DIR}/libs/Walnut/Walnut/src/Walnut/*.cpp)
+file(GLOB Walnut_headers ${PROJECT_SOURCE_DIR}/libs/Walnut/Walnut/src/Walnut/*.h)
 add_library(${LIB_NAME}
     ${Walnut}
     ${Walnut_headers}
 )
 target_include_directories(${LIB_NAME} PUBLIC
-    ${PROJECT_SOURCE_DIR}/libs/stb_image
+    ${PROJECT_SOURCE_DIR}/libs/Walnut/vendor/stb_image
     ${GLM_PATH}
 )
 target_link_directories(${LIB_NAME} PUBLIC
@@ -88,7 +88,7 @@ add_executable(${PROJECT_NAME}
     ${SOURCES}
 )
 target_include_directories(${PROJECT_NAME} PUBLIC
-    ${PROJECT_SOURCE_DIR}/libs
+    ${PROJECT_SOURCE_DIR}/libs/Walnut/Walnut/src
 )
 target_link_libraries(${PROJECT_NAME} PUBLIC
     -static
