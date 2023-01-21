@@ -1,0 +1,11 @@
+version: "3.9"
+
+services:
+  vulkan_compiler:
+    image: delapf/wvcc
+    container_name: rtve-compiler
+    volumes:
+      - .:C:\dev\target
+    # Uncomment below to 'exec -i' (or -it) into build env
+    #tty: true
+    #entrypoint: powershell
