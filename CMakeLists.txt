@@ -69,6 +69,7 @@ add_library(${LIB_NAME}
     ${Walnut_headers}
 )
 target_include_directories(${LIB_NAME} PUBLIC
+    ${PROJECT_SOURCE_DIR}/src
     ${PROJECT_SOURCE_DIR}/libs/Walnut/vendor/stb_image
     ${GLM_PATH}
 )
