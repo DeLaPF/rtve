@@ -25,6 +25,7 @@ private:
 private:
     std::shared_ptr<Walnut::Image> m_FinalImage;
     uint32_t* m_ImageData;
+    float m_AspectRatio = 1.0f;
 
     // x, y, z, 'w' is focalLength
     glm::vec4 m_Camera = glm::vec4(0.0f, 0.0f, -4.0f, 1.0f); 

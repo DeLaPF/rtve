@@ -15,6 +15,7 @@ void Renderer::OnResize(uint32_t width, uint32_t height)
 
     delete[] m_ImageData;
     m_ImageData = new uint32_t[width * height];
+    m_AspectRatio = (float)m_FinalImage->GetWidth() / (float)m_FinalImage->GetHeight();
 }
 
 void Renderer::Render()
@@ -23,7 +24,8 @@ void Renderer::Render()
     {
         for (uint32_t x = 0; x < m_FinalImage->GetWidth(); x++)
         {
-            glm::vec2 coord = { x / (float)m_FinalImage->GetWidth(), y / (float)m_FinalImage->GetHeight() };
+            glm::vec2 coord = { (x / (float)m_FinalImage->GetWidth()) * m_AspectRatio,
+                                 y / (float)m_FinalImage->GetHeight() };
             coord = coord * 2.0f - 1.0f; // map from -1 to 1
             //m_ImageData[x + (y * m_FinalImage->GetWidth())] = PerPixel(coord);
             m_ImageData[x + (y * m_FinalImage->GetWidth())] = DrawSphere(coord);
