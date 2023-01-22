@@ -20,16 +20,15 @@ private:
     uint32_t PerPixel(glm::vec2 coord);
 
     uint32_t DrawSphere(glm::vec2 coord);
-
-    bool DoesRayHitSphere(glm::vec4* rayOrigin, glm::vec3* direction, glm::vec4* sphereOrigin, float radius);
 private:
     std::shared_ptr<Walnut::Image> m_FinalImage;
     uint32_t* m_ImageData;
     float m_AspectRatio = 1.0f;
 
-    // x, y, z, 'w' is focalLength
-    glm::vec4 m_Camera = glm::vec4(0.0f, 0.0f, -4.0f, 1.0f); 
-    // x, y, z, 'w' is raidus
-    glm::vec4 m_Sphere = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+    glm::vec3 m_Camera = glm::vec3(0.0f, 0.0f, -4.0f); 
+    float m_CameraFocalLength = 1.0f;
+
+    glm::vec3 m_Sphere = glm::vec3(0.0f, 0.0f, 0.0f);
+    float m_SphereRadius = 1.0f;
 
 };

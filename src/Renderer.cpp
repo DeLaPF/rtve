@@ -45,31 +45,18 @@ uint32_t Renderer::PerPixel(glm::vec2 coord)
 
 uint32_t Renderer::DrawSphere(glm::vec2 coord)
 {
-    glm::vec3 direction = glm::vec3(coord.x + m_Camera.x, coord.y + m_Camera.y, m_Camera.z + m_Camera.w);
-    if (DoesRayHitSphere(&m_Camera, &direction, &m_Sphere, m_Sphere.w)) {
+    glm::vec3 rayDirection = glm::vec3(coord.x + m_Camera.x, coord.y + m_Camera.y, m_Camera.z + m_CameraFocalLength);
+    glm::vec3 rayOrigin = m_Camera, sphereOrigin = m_Sphere;
+    float radius = m_SphereRadius;
+
+    float a = glm::dot(rayDirection, rayDirection);
+    float b = 2.0f * glm::dot(rayOrigin, rayDirection) - 2.0f * glm::dot(rayDirection, sphereOrigin);
+    float c = glm::dot(rayOrigin, rayOrigin) - 2.0f * glm::dot(rayOrigin, sphereOrigin) + glm::dot(sphereOrigin, sphereOrigin) - radius * radius;
+    float determinant = b * b - (4.0f * a * c);
+
+    if (determinant >= 0.0f) {
         return 0xffff00ff;
     } 
 
     return 0xff000000;
-}
-
-bool Renderer::DoesRayHitSphere(glm::vec4* rayOrigin, glm::vec3* direction, glm::vec4* sphereOrigin, float radius)
-{
-    // find values for 't' (if they exist) such that:
-    // (a_x + b_xt - c)^2 + (a_y + b_yt - d)^2 + (a_z + b_zt - e)^2 - r^2 = 0
-    // expand above into quadratic form, with coefficients relative to 't'
-    // as follows:
-    // a = (b_x^2 + b_y^2 + b_z^2)
-    // b = (2a_xb_x - 2b_xc + 2a_yb_y - 2b_yd + 2a_zb_z - 2b_ze)
-    // c = (a_x^2 - 2a_xc + c^2 + a_y^2 - 2a_yd + d^2 + a_z^2 - 2a_ze + e^2 - r^2)
-    // sovle for determinant: b^2 - 4ac to see if there is an intersection
-    float rX = rayOrigin->x, rY = rayOrigin->y, rZ = rayOrigin->z;
-    float dX = direction->x, dY = direction->y, dZ = direction->z;
-    float sX = sphereOrigin->x, sY = sphereOrigin->y, sZ = sphereOrigin->z;
-    float a = (dX * dX) + (dY * dY) + (dZ * dZ);
-    float b = ((2 * rX * dX) - (2 * dX * sX)) + ((2 * rY * dY) - (2 * dY * sY)) + ((2 * rZ * dZ) - (2 * dZ * sZ));
-    float c = ((rX * rX) - (2 * rX * sX) + (sX * sX)) + ((rY * rY) - (2 * rY * sY) + (sY * sY)) + ((rZ * rZ) - (2 * rZ * sZ) + (sZ * sZ)) - (radius * radius);
-    float determinant = b * b - (4 * a * c);
-
-    return determinant >= 0.0f;
 }
