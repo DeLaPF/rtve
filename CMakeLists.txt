@@ -62,14 +62,15 @@ target_link_libraries(${LIB_NAME} PUBLIC
 # Walnut
 set(LIB_NAME Walnut)
 message(STATUS "ADDING ${LIB_NAME}")
-file(GLOB Walnut ${PROJECT_SOURCE_DIR}/libs/Walnut/Walnut/src/Walnut/*.cpp)
-file(GLOB Walnut_headers ${PROJECT_SOURCE_DIR}/libs/Walnut/Walnut/src/Walnut/*.h)
+file(GLOB_RECURSE Walnut ${PROJECT_SOURCE_DIR}/libs/Walnut/Walnut/src/Walnut/*.cpp)
+file(GLOB_RECURSE Walnut_headers ${PROJECT_SOURCE_DIR}/libs/Walnut/Walnut/src/Walnut/*.h)
 add_library(${LIB_NAME}
     ${Walnut}
     ${Walnut_headers}
 )
 target_include_directories(${LIB_NAME} PUBLIC
     ${PROJECT_SOURCE_DIR}/src
+    ${PROJECT_SOURCE_DIR}/libs/Walnut/Walnut/src
     ${PROJECT_SOURCE_DIR}/libs/Walnut/vendor/stb_image
     ${GLM_PATH}
 )
