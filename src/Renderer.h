@@ -16,6 +16,12 @@ public:
     void OnResize(uint32_t width, uint32_t height);
 
     std::shared_ptr<Walnut::Image> GetFinalImage() const { return m_FinalImage; };
+
+    void SetSphereColor(glm::vec4 floatColor) { m_SphereColor = floatColor; }
+
+    void SetSphereLocation(glm::vec3 location) { m_Sphere = location; }
+
+    void SetLightDirection(glm::vec3 direction) { m_LightDirection = direction; }
 private:
     glm::vec4 PerPixel(glm::vec2 coord);
 
@@ -30,4 +36,6 @@ private:
 
     glm::vec3 m_Sphere = glm::vec3(0.0f, 0.0f, 0.0f);
     float m_SphereRadius = 0.5f;
+    glm::vec4 m_SphereColor = glm::vec4(1.0f, 0.0f, 1.0f, 1.0f);
+    glm::vec3 m_LightDirection = glm::vec3(-1.0f, -1.0f, -1.0f);
 };

@@ -22,6 +22,28 @@ public:
             m_TogglePause = !m_TogglePause;
         }
 
+        ImGui::Text("Set Sphere Color");
+        static float r = 1.0f, g = 0.0f, b = 1.0f, a = 1.0f;
+        ImGui::SliderFloat("R", &r, 0.0f, 1.0f, "%.3f");
+        ImGui::SliderFloat("G", &g, 0.0f, 1.0f, "%.3f");
+        ImGui::SliderFloat("B", &b, 0.0f, 1.0f, "%.3f");
+        ImGui::SliderFloat("A", &a, 0.0f, 1.0f, "%.3f");
+        m_Renderer.SetSphereColor(glm::vec4(r, g, b, a));
+
+        ImGui::Text("Set Sphere Location");
+        static float sphereX = 0.0f, sphereY = 0.0f, sphereZ = 0.0f;
+        ImGui::SliderFloat("Sphere X", &sphereX, -1.0f, 1.0f, "%.3f");
+        ImGui::SliderFloat("Sphere Y", &sphereY, -1.0f, 1.0f, "%.3f");
+        ImGui::SliderFloat("Sphere Z", &sphereZ, -1.0f, 1.0f, "%.3f");
+        m_Renderer.SetSphereLocation(glm::vec3(sphereX, sphereY, sphereZ));
+        
+        ImGui::Text("Set Light Direction");
+        static float lightX = -1.0f, lightY = -1.0f, lightZ = -1.0f;
+        ImGui::SliderFloat("Light X", &lightX, -1.0f, 1.0f, "%.3f");
+        ImGui::SliderFloat("Light Y", &lightY, -1.0f, 1.0f, "%.3f");
+        ImGui::SliderFloat("Light Z", &lightZ, -1.0f, 1.0f, "%.3f");
+        m_Renderer.SetLightDirection(glm::vec3(lightX, lightY, lightZ));
+
 		ImGui::End();
 
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));

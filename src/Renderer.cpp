@@ -80,9 +80,8 @@ glm::vec4 Renderer::DrawSphere(glm::vec2 coord)
     glm::vec3 nearHit = rayOrigin + (rayDirection * t1);
 
     glm::vec3 surfaceNormal = glm::normalize(nearHit - sphereOrigin);
-    glm::vec3 lightDirection = glm::normalize(glm::vec3(-1.0f, -1.0f, -1.0f));
-    float lightIntensity = glm::max(glm::dot(surfaceNormal, -lightDirection), 0.0f);
+    float lightIntensity = glm::max(glm::dot(surfaceNormal, -m_LightDirection), 0.0f);
 
-    glm::vec3 sphereColor = glm::vec3(1.0f, 0.0f, 1.0f) * lightIntensity;
-    return glm::vec4(sphereColor, 1.0f);
+    glm::vec3 sphereColor = glm::vec3(m_SphereColor) * lightIntensity;
+    return glm::vec4(sphereColor, m_SphereColor.w);
 }
