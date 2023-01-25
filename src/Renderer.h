@@ -17,18 +17,17 @@ public:
 
     std::shared_ptr<Walnut::Image> GetFinalImage() const { return m_FinalImage; };
 private:
-    uint32_t PerPixel(glm::vec2 coord);
+    glm::vec4 PerPixel(glm::vec2 coord);
 
-    uint32_t DrawSphere(glm::vec2 coord);
+    glm::vec4 DrawSphere(glm::vec2 coord);
 private:
     std::shared_ptr<Walnut::Image> m_FinalImage;
     uint32_t* m_ImageData;
     float m_AspectRatio = 1.0f;
 
-    glm::vec3 m_Camera = glm::vec3(0.0f, 0.0f, -4.0f); 
-    float m_CameraFocalLength = 1.0f;
+    glm::vec3 m_Camera = glm::vec3(0.0f, 0.0f, 1.0f); 
+    float m_CameraFocalLength = -1.0f;
 
     glm::vec3 m_Sphere = glm::vec3(0.0f, 0.0f, 0.0f);
-    float m_SphereRadius = 1.0f;
-
+    float m_SphereRadius = 0.5f;
 };
