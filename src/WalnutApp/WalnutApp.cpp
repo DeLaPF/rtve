@@ -5,14 +5,36 @@
 #include "Walnut/Random.h"
 #include "Walnut/Timer.h"
 
-#include "Renderer.h"
 #include "Camera/Camera.h"
+#include "Renderer.h"
+#include "Scene.h"
+
+#include <glm/gtc/type_ptr.hpp>
 
 class ExampleLayer : public Walnut::Layer
 {
 public:
     ExampleLayer()
-		: m_Camera(45.0f, 0.1f, 100.0f) {}
+        : m_Camera(45.0f, 0.1f, 100.0f)
+    {
+        {
+            Sphere sphere;
+            sphere.Position = { 0.0f, 0.0f, 0.0f };
+            sphere.Radius = 0.5f;
+            sphere.Albedo = { 1.0f, 1.0f, 1.0f };
+            sphere.Opacity = 1.0f;
+            m_Scene.Spheres.push_back(sphere);
+        }
+
+        {
+            Sphere sphere;
+            sphere.Position = { 1.0f, 0.5f, -2.0f };
+            sphere.Radius = 1.0f;
+            sphere.Albedo = { 1.0f, 0.0f, 1.0f };
+            sphere.Opacity = 1.0f;
+            m_Scene.Spheres.push_back(sphere);
+        }
+    }
 
 	virtual void OnUpdate(float ts) override
 	{
@@ -31,27 +53,30 @@ public:
             m_TogglePause = !m_TogglePause;
         }
 
-        ImGui::Text("Set Sphere Color");
-        static float r = 1.0f, g = 0.0f, b = 1.0f, a = 1.0f;
-        ImGui::SliderFloat("R", &r, 0.0f, 1.0f, "%.3f");
-        ImGui::SliderFloat("G", &g, 0.0f, 1.0f, "%.3f");
-        ImGui::SliderFloat("B", &b, 0.0f, 1.0f, "%.3f");
-        ImGui::SliderFloat("A", &a, 0.0f, 1.0f, "%.3f");
-        m_Renderer.SetSphereColor(glm::vec4(r, g, b, a));
+        ImGui::End();
 
-        ImGui::Text("Set Sphere Location");
-        static float sphereX = 0.0f, sphereY = 0.0f, sphereZ = 0.0f;
-        ImGui::SliderFloat("Sphere X", &sphereX, -1.0f, 1.0f, "%.3f");
-        ImGui::SliderFloat("Sphere Y", &sphereY, -1.0f, 1.0f, "%.3f");
-        ImGui::SliderFloat("Sphere Z", &sphereZ, -1.0f, 1.0f, "%.3f");
-        m_Renderer.SetSphereLocation(glm::vec3(sphereX, sphereY, sphereZ));
+        ImGui::Begin("Scene");
+
+        ImGui::Text("Spheres");
+        for (size_t i = 0; i < m_Scene.Spheres.size(); i++)
+        {
+            ImGui::PushID(i);
+
+            Sphere& sphere = m_Scene.Spheres[i];
+            ImGui::DragFloat3("Position", glm::value_ptr(sphere.Position), 0.1f);
+            ImGui::DragFloat("Radius", &sphere.Radius, 0.1f, 0.1f, std::numeric_limits<float>::max());
+            ImGui::ColorEdit3("Albedo", glm::value_ptr(sphere.Albedo), 0.1f);
+            ImGui::DragFloat("Opacity", &sphere.Opacity, 0.01f, 0.0f, 1.0f);
+            ImGui::Separator();
+
+            ImGui::PopID();
+        }
         
-        ImGui::Text("Set Light Direction");
-        static float lightX = -1.0f, lightY = -1.0f, lightZ = -1.0f;
-        ImGui::SliderFloat("Light X", &lightX, -1.0f, 1.0f, "%.3f");
-        ImGui::SliderFloat("Light Y", &lightY, -1.0f, 1.0f, "%.3f");
-        ImGui::SliderFloat("Light Z", &lightZ, -1.0f, 1.0f, "%.3f");
-        m_Renderer.SetLightDirection(glm::vec3(lightX, lightY, lightZ));
+        ImGui::Text("Light");
+        ImGui::DragFloat3("Light Direction", glm::value_ptr(m_Scene.LightDirection), 0.01f, -1.0f, 1.0f);
+
+        ImGui::Text("Background");
+        ImGui::ColorEdit4("Color", glm::value_ptr(m_Scene.BackgroundColor), 0.01f);
 
 		ImGui::End();
 
@@ -82,7 +107,7 @@ public:
 
         m_Renderer.OnResize(m_ViewportWidth, m_ViewportHeight);
         m_Camera.OnResize(m_ViewportWidth, m_ViewportHeight);
-		m_Renderer.Render(m_Camera);
+		m_Renderer.Render(m_Scene, m_Camera);
 
         m_LastRenderTime = timer.ElapsedMillis();
     }
@@ -90,6 +115,8 @@ public:
 private:
     Renderer m_Renderer;
     Camera m_Camera;
+    Scene m_Scene;
+
     bool m_TogglePause = false;
     float m_LastRenderTime = 0.0f;
 

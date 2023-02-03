@@ -1,3 +1,7 @@
 # Directories
 debug/
 release/
+
+# Auto generated
+imgui.ini
+compile_commands.json
