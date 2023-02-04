@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
   vulkan_compiler:
-    image: delapf/wvcc
+    image: delapf/wvcc:latest
     container_name: rtve-compiler
     volumes:
       - .:C:\dev\target
