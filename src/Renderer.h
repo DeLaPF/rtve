@@ -23,6 +23,6 @@ private:
     glm::vec4 TraceRay(const Scene& scene, const Ray& ray);
 private:
     std::shared_ptr<Walnut::Image> m_FinalImage;
-    uint32_t* m_ImageData;
+    uint32_t* m_ImageData = new uint32_t[1]; // avoid calling `delete[]` on garbage ptr
     float m_AspectRatio = 1.0f;
 };
