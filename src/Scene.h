@@ -10,7 +10,6 @@ struct Sphere
     float Radius = 0.5f;
 
     glm::vec3 Albedo{1.0f};
-    float Opacity = 1.0f;
 };
 
 struct Scene
@@ -18,5 +17,5 @@ struct Scene
     std::vector<Sphere> Spheres;
 
     glm::vec3 LightDirection{-1.0f};
-    glm::vec4 BackgroundColor{0.0f, 0.0f, 0.0f, 1.0f};
+    glm::vec3 BackgroundColor{0.0f, 0.0f, 0.0f};
 };

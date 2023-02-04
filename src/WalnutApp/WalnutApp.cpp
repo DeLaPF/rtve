@@ -19,21 +19,21 @@ public:
     {
         {
             Sphere sphere;
-            sphere.Position = { 0.0f, 0.0f, 0.0f };
+            sphere.Position = { 0.0f, 0.0f, -2.0f };
             sphere.Radius = 0.5f;
-            sphere.Albedo = { 1.0f, 1.0f, 1.0f };
-            sphere.Opacity = 1.0f;
+            sphere.Albedo = { 0.45f, 0.1f, 0.7f };
             m_Scene.Spheres.push_back(sphere);
         }
 
         {
             Sphere sphere;
-            sphere.Position = { 1.0f, 0.5f, -2.0f };
-            sphere.Radius = 1.0f;
-            sphere.Albedo = { 1.0f, 0.0f, 1.0f };
-            sphere.Opacity = 1.0f;
+            sphere.Position = { 0.0f, -101.0f, -2.0f };
+            sphere.Radius = 100.0f;
+            sphere.Albedo = { 0.45f, 0.25f, 0.0f };
             m_Scene.Spheres.push_back(sphere);
         }
+
+        m_Scene.BackgroundColor = { 0.4f, 0.6f, 0.8f };
     }
 
 	virtual void OnUpdate(float ts) override
@@ -66,7 +66,6 @@ public:
             ImGui::DragFloat3("Position", glm::value_ptr(sphere.Position), 0.1f);
             ImGui::DragFloat("Radius", &sphere.Radius, 0.1f, 0.1f, std::numeric_limits<float>::max());
             ImGui::ColorEdit3("Albedo", glm::value_ptr(sphere.Albedo), 0.1f);
-            ImGui::DragFloat("Opacity", &sphere.Opacity, 0.01f, 0.0f, 1.0f);
             ImGui::Separator();
 
             ImGui::PopID();
