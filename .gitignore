@@ -1,7 +1,9 @@
 # Directories
 debug/
 release/
+unixBuild/
 
 # Auto generated
-imgui.ini
+.cache/
 compile_commands.json
+imgui.ini

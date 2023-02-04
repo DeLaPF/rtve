@@ -1,33 +1,53 @@
-include(./.env.cmake OPTIONAL RESULT_VARIABLE LOCAL_ENV)
-message(STATUS "Local .env.cmake: ${LOCAL_ENV}")
+if (WIN32)
+    include(./.env.cmake OPTIONAL RESULT_VARIABLE LOCAL_ENV)
+    message(STATUS "Local .env.cmake: ${LOCAL_ENV}")
+endif()
 
 cmake_minimum_required(VERSION 3.11.0)
 project(rtve VERSION 0.0.1)
-message(STATUS "using ${CMAKE_GENERATOR}")
 
 # Mingw
-if (NOT MINGW_PATH) 
-    message(FATAL_ERROR "MINGW_PATH not set in .env.cmake")
+message(STATUS "using ${CMAKE_GENERATOR}")
+if (CMAKE_GENERATOR STREQUAL "MinGW Makefiles")
+    if (NOT MINGW_PATH) 
+      message(FATAL_ERROR "MINGW_PATH not set in .env.cmake")
+    endif()
+    set(USE_MINGW "True")
+    set(CMAKE_C_COMPILER ${MINGW_PATH}/bin/gcc.exe)
+    set(CMAKE_CXX_COMPILER ${MINGW_PATH}/bin/g++.exe)
+    message(STATUS "using mingw at: ${MINGW_PATH}")
 endif()
-set(CMAKE_C_COMPILER ${MINGW_PATH}/bin/gcc.exe)
-set(CMAKE_CXX_COMPILER  ${MINGW_PATH}/bin/g++.exe)
-message(STATUS "using mingw at: ${MINGW_PATH}")
 
 # Vulkan
-if (NOT VULKAN_SDK_PATH) 
-    message(FATAL_ERROR "VULKAN_SDK_PATH not set in .env.cmake")
+if (DEFINED VULKAN_SDK_PATH)
+    set(Vulkan_INCLUDE_DIRS "${VULKAN_SDK_PATH}/Include") # 1.1 Make sure this include path is correct
+    set(Vulkan_LIBRARIES "${VULKAN_SDK_PATH}/Lib") # 1.2 Make sure lib path is correct
+    set(Vulkan_FOUND "True")
+else()
+    find_package(Vulkan REQUIRED) # throws error if could not find Vulkan
+    message(STATUS "Found Vulkan: $ENV{VULKAN_SDK}")
 endif()
-set(Vulkan_INCLUDE_DIRS "${VULKAN_SDK_PATH}/Include") # 1.1 Make sure this include path is correct
-set(Vulkan_LIBRARIES "${VULKAN_SDK_PATH}/Lib") # 1.2 Make sure lib path is correct
-message(STATUS "Using vulkan lib at: ${Vulkan_LIBRARIES}")
+if (NOT Vulkan_FOUND)
+    message(FATAL_ERROR "Could not find Vulkan library!")
+else()
+    message(STATUS "Using vulkan lib at: ${Vulkan_LIBRARIES}")
+endif()
 
 # Glfw
-if (NOT GLFW_PATH) 
-    message(FATAL_ERROR "GLFW_PATH not set in .env.cmake")
+if (DEFINED GLFW_PATH)
+    message(STATUS "Using GLFW path specified in .env")
+    set(GLFW_INCLUDE_DIRS "${GLFW_PATH}/include")
+    set(GLFW_LIB "${GLFW_PATH}/lib-mingw-w64") # 2.1 make sure matches glfw mingw subdirectory
+else()
+    find_package(glfw3 3.3 REQUIRED)
+    set(GLFW_LIB glfw)
+    message(STATUS "Found GLFW")
 endif()
-set(GLFW_INCLUDE_DIRS "${GLFW_PATH}/include")
-set(GLFW_LIB "${GLFW_PATH}/lib-mingw-w64") # 2.1 make sure matches glfw mingw subdirectory
-message(STATUS "Using glfw lib at: ${GLFW_LIB}")
+if (NOT GLFW_LIB)
+	message(FATAL_ERROR "Could not find glfw library!")
+else()
+	message(STATUS "Using glfw lib at: ${GLFW_LIB}")
+endif()
 
 # ImGui
 set(LIB_NAME ImGui)
@@ -46,18 +66,26 @@ add_library(${LIB_NAME}
     ${ImGui_glfw}
     ${ImGui_glfw_headers}
 )
-target_compile_definitions(${LIB_NAME} PUBLIC
-    WL_PLATFORM_WINDOWS
-    WL_DIST
-)
+if (WIN32)
+    target_compile_definitions(${LIB_NAME} PUBLIC
+        WL_PLATFORM_WINDOWS
+        WL_DIST
+    )
+endif()
 target_include_directories(${LIB_NAME} PUBLIC
     ${PROJECT_SOURCE_DIR}/libs/Walnut/vendor/imgui
     ${Vulkan_INCLUDE_DIRS}
     ${GLFW_INCLUDE_DIRS}
 )
-target_link_libraries(${LIB_NAME} PUBLIC
-    vulkan-1
-)
+if (WIN32)
+    target_link_libraries(${LIB_NAME} PUBLIC
+        vulkan-1
+    )
+else()
+    target_link_libraries(${LIB_NAME} PUBLIC
+        ${Vulkan_LIBRARIES}
+    )
+endif()
 
 # Walnut
 set(LIB_NAME Walnut)
@@ -78,10 +106,17 @@ target_link_directories(${LIB_NAME} PUBLIC
     ${Vulkan_LIBRARIES}
     ${GLFW_LIB}
 )
-target_link_libraries(${LIB_NAME} PUBLIC
-    glfw3
-    ImGui
-)
+if (WIN32)
+    target_link_libraries(${LIB_NAME} PUBLIC
+        glfw3
+        ImGui
+    )
+else()
+    target_link_libraries(${LIB_NAME} PUBLIC
+        glfw
+        ImGui
+    )
+endif()
 
 # Rtve
 message(STATUS "ADDING ${PROJECT_NAME}")
@@ -92,7 +127,13 @@ add_executable(${PROJECT_NAME}
 target_include_directories(${PROJECT_NAME} PUBLIC
     ${PROJECT_SOURCE_DIR}/libs/Walnut/Walnut/src
 )
-target_link_libraries(${PROJECT_NAME} PUBLIC
-    -static
-    Walnut
-)
+if (WIN32)
+    target_link_libraries(${PROJECT_NAME} PUBLIC
+        -static
+        Walnut
+    )
+else()
+    target_link_libraries(${PROJECT_NAME} PUBLIC
+        Walnut
+    )
+endif()
