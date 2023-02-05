@@ -1,13 +1,12 @@
 #include "Walnut/Application.h"
 #include "Walnut/EntryPoint.h"
 
-#include "Walnut/Image.h"
-#include "Walnut/Random.h"
 #include "Walnut/Timer.h"
 
 #include "Camera/Camera.h"
 #include "Renderer.h"
 #include "Scene.h"
+#include "imgui.h"
 
 #include <glm/gtc/type_ptr.hpp>
 
@@ -18,18 +17,32 @@ public:
         : m_Camera(45.0f, 0.1f, 100.0f)
     {
         {
-            Sphere sphere;
-            sphere.Position = { 0.0f, 0.0f, -2.0f };
-            sphere.Radius = 0.5f;
-            sphere.Albedo = { 0.45f, 0.1f, 0.7f };
-            m_Scene.Spheres.push_back(sphere);
+            Material material;
+            material.Albedo = { 0.45f, 0.1f, 0.7f };
+            material.Roughness = 1.0f;
+            material.Metallic = 0.0f;
+            m_Scene.Materials.push_back(material);
+        }
+        {
+            Material material;
+            material.Albedo = { 0.45f, 0.25f, 0.0f };
+            material.Roughness = 1.0f;
+            material.Metallic = 0.0f;
+            m_Scene.Materials.push_back(material);
         }
 
         {
             Sphere sphere;
+            sphere.Position = { 0.0f, 0.0f, -2.0f };
+            sphere.Radius = 1.0f;
+            sphere.MaterialIndex = 0;
+            m_Scene.Spheres.push_back(sphere);
+        }
+        {
+            Sphere sphere;
             sphere.Position = { 0.0f, -101.0f, -2.0f };
             sphere.Radius = 100.0f;
-            sphere.Albedo = { 0.45f, 0.25f, 0.0f };
+            sphere.MaterialIndex = 1;
             m_Scene.Spheres.push_back(sphere);
         }
 
@@ -65,7 +78,22 @@ public:
             Sphere& sphere = m_Scene.Spheres[i];
             ImGui::DragFloat3("Position", glm::value_ptr(sphere.Position), 0.1f);
             ImGui::DragFloat("Radius", &sphere.Radius, 0.1f, 0.1f, std::numeric_limits<float>::max());
-            ImGui::ColorEdit3("Albedo", glm::value_ptr(sphere.Albedo), 0.1f);
+            ImGui::DragInt("Material Index", &sphere.MaterialIndex, 0, m_Scene.Materials.size() - 1);
+            ImGui::Separator();
+
+            ImGui::PopID();
+        }
+
+
+        ImGui::Text("Materials");
+        for (size_t i = 0; i < m_Scene.Materials.size(); i++)
+        {
+            ImGui::PushID(i);
+
+            Material& material = m_Scene.Materials[i];
+            ImGui::ColorEdit3("Albedo", glm::value_ptr(material.Albedo));
+            ImGui::DragFloat("Roughness", &material.Roughness, 0.01f, 0.0f, 1.0f);
+            ImGui::DragFloat("Metallic", &material.Roughness, 0.01f, 0.0f, 1.0f);
             ImGui::Separator();
 
             ImGui::PopID();
@@ -75,7 +103,7 @@ public:
         ImGui::DragFloat3("Light Direction", glm::value_ptr(m_Scene.LightDirection), 0.01f, -1.0f, 1.0f);
 
         ImGui::Text("Background");
-        ImGui::ColorEdit4("Color", glm::value_ptr(m_Scene.BackgroundColor), 0.01f);
+        ImGui::ColorEdit4("Color", glm::value_ptr(m_Scene.BackgroundColor));
 
 		ImGui::End();
 

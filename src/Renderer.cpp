@@ -1,6 +1,6 @@
 #include "Renderer.h"
-#include <cstdint>
-#include <cstdlib>
+
+#include "Walnut/Random.h"
 
 namespace Utils
 {
@@ -69,13 +69,15 @@ glm::vec4 Renderer::RayGen(uint32_t x, uint32_t y)
             break;
         }
         const Sphere& hitSphere = m_ActiveScene->Spheres[hit.ObjectIndex];
+        const Material& hitMaterial = m_ActiveScene->Materials[hitSphere.MaterialIndex];
 
         float lightIntensity = glm::max(glm::dot(hit.WorldNormal, - m_ActiveScene->LightDirection), 0.0f);
-        glm::vec3 sphereColor = hitSphere.Albedo * lightIntensity;
+        glm::vec3 sphereColor = hitMaterial.Albedo * lightIntensity;
         color += sphereColor * multiplier;
 
         ray.Origin = hit.WorldPosition + hit.WorldNormal * 0.0001f;
-        ray.Direction = glm::reflect(ray.Direction, hit.WorldNormal);
+        ray.Direction = glm::reflect(ray.Direction, hit.WorldNormal +
+                hitMaterial.Roughness * Walnut::Random::Vec3(-0.5f, 0.5f));
         multiplier *= 0.7f;
     }
 
