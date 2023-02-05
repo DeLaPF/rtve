@@ -6,6 +6,7 @@
 #include "Ray.h"
 #include "Scene.h"
 
+#include <cstdint>
 #include <memory>
 #include <cstring>
 #include "glm/glm.hpp"
@@ -16,6 +17,7 @@ public:
     struct Settings
     {
         bool Accumulate = true;
+        bool Multithread = true;
     };
 
     Renderer() = default;
@@ -49,9 +51,11 @@ private:
     uint32_t* m_ImageData = nullptr;
     glm::vec4* m_AccumulationData = nullptr;
     uint32_t m_FrameIndex = 1;
-
     float m_AspectRatio = 1.0f;
-    Settings m_Settings;
+
     const Scene* m_ActiveScene = nullptr;
     const Camera* m_ActiveCamera = nullptr;
+
+    Settings m_Settings;
+    std::vector<uint32_t> m_ImageHorizontalIter, m_ImageVerticalIter;
 };

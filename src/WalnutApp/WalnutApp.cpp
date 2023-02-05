@@ -70,7 +70,8 @@ public:
             m_TogglePause = !m_TogglePause;
             m_DidUIUpdate = true;
         }
-        ImGui::Checkbox("Accumulate", &m_Renderer.GetSettings().Accumulate);
+        m_DidUIUpdate |= ImGui::Checkbox("Multithread", &m_Renderer.GetSettings().Multithread);
+        m_DidUIUpdate |= ImGui::Checkbox("Accumulate", &m_Renderer.GetSettings().Accumulate);
 		if (ImGui::Button("Reset Accumulate")) {
             m_Renderer.ResetFrameIndex();
             m_DidUIUpdate = true;
