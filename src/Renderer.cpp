@@ -29,7 +29,9 @@ void Renderer::OnResize(uint32_t width, uint32_t height)
     }
 
     delete[] m_ImageData;
+    delete[] m_AccumulationData;
     m_ImageData = new uint32_t[width * height];
+    m_AccumulationData = new glm::vec4[width * height];
     m_AspectRatio = (float)m_FinalImage->GetWidth() / (float)m_FinalImage->GetHeight();
 }
 
@@ -38,18 +40,34 @@ void Renderer::Render(const Scene& scene, const Camera& camera)
     m_ActiveScene = &scene;
     m_ActiveCamera = &camera;
 
+    if (m_FrameIndex == 1) {
+        memset(m_AccumulationData, 0, m_FinalImage->GetWidth() * m_FinalImage->GetHeight() * sizeof(glm::vec4));
+    }
     
     for (uint32_t y = 0; y < m_FinalImage->GetHeight(); y++)
     {
         for (uint32_t x = 0; x < m_FinalImage->GetWidth(); x++)
         {
 			glm::vec4 floatColor = RayGen(x, y);
-            floatColor = glm::clamp(floatColor, glm::vec4(0.0f), glm::vec4(1.0f)); 
+            m_AccumulationData[x + (y * m_FinalImage->GetWidth())] += floatColor;
+            glm::vec4 accumulatedColor = m_AccumulationData[x + (y * m_FinalImage->GetWidth())] / (float)m_FrameIndex;
+
+            if (m_Settings.Accumulate) {
+                floatColor = glm::clamp(accumulatedColor, glm::vec4(0.0f), glm::vec4(1.0f)); 
+            } else {
+                floatColor = glm::clamp(floatColor, glm::vec4(0.0f), glm::vec4(1.0f)); 
+            }
             m_ImageData[x + (y * m_FinalImage->GetWidth())] = Utils::FloatToABGR(floatColor);
         }
     }
 
     m_FinalImage->SetData(m_ImageData);
+
+    if (m_Settings.Accumulate) {
+        m_FrameIndex++;
+    } else {
+        m_FrameIndex = 1;
+    }
 }
 
 glm::vec4 Renderer::RayGen(uint32_t x, uint32_t y)

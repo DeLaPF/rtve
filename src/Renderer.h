@@ -6,13 +6,18 @@
 #include "Ray.h"
 #include "Scene.h"
 
-#include <cstdint>
 #include <memory>
+#include <cstring>
 #include "glm/glm.hpp"
 
 class Renderer
 {
 public:
+    struct Settings
+    {
+        bool Accumulate = true;
+    };
+
     Renderer() = default;
 
     void Render(const Scene& scene, const Camera& camera);
@@ -20,6 +25,10 @@ public:
     void OnResize(uint32_t width, uint32_t height);
 
     std::shared_ptr<Walnut::Image> GetFinalImage() const { return m_FinalImage; };
+
+    void ResetFrameIndex() { m_FrameIndex = 1; };
+
+    Settings& GetSettings() { return m_Settings; }
 private:
     struct HitPayload
     {
@@ -38,9 +47,11 @@ private:
 private:
     std::shared_ptr<Walnut::Image> m_FinalImage;
     uint32_t* m_ImageData = nullptr;
+    glm::vec4* m_AccumulationData = nullptr;
+    uint32_t m_FrameIndex = 1;
 
     float m_AspectRatio = 1.0f;
-
+    Settings m_Settings;
     const Scene* m_ActiveScene = nullptr;
     const Camera* m_ActiveCamera = nullptr;
 };

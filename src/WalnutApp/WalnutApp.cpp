@@ -19,14 +19,14 @@ public:
         {
             Material material;
             material.Albedo = { 0.45f, 0.1f, 0.7f };
-            material.Roughness = 1.0f;
+            material.Roughness = 0.75f;
             material.Metallic = 0.0f;
             m_Scene.Materials.push_back(material);
         }
         {
             Material material;
             material.Albedo = { 0.45f, 0.25f, 0.0f };
-            material.Roughness = 1.0f;
+            material.Roughness = 0.15f;
             material.Metallic = 0.0f;
             m_Scene.Materials.push_back(material);
         }
@@ -51,7 +51,10 @@ public:
 
 	virtual void OnUpdate(float ts) override
 	{
-		m_Camera.OnUpdate(ts);
+		if (m_DidUIUpdate || m_Camera.OnUpdate(ts)) {
+            m_Renderer.ResetFrameIndex();
+            m_DidUIUpdate = false;
+        }
 	}
 
 	virtual void OnUIRender() override
@@ -61,9 +64,16 @@ public:
         ImGui::Text("Last Render: %.3fms", m_LastRenderTime);
 		if (ImGui::Button("Render Single")) {
             Render();
+            m_DidUIUpdate = true;
         }
 		if (ImGui::Button("Toggle Pause")) {
             m_TogglePause = !m_TogglePause;
+            m_DidUIUpdate = true;
+        }
+        ImGui::Checkbox("Accumulate", &m_Renderer.GetSettings().Accumulate);
+		if (ImGui::Button("Reset Accumulate")) {
+            m_Renderer.ResetFrameIndex();
+            m_DidUIUpdate = true;
         }
 
         ImGui::End();
@@ -76,9 +86,9 @@ public:
             ImGui::PushID(i);
 
             Sphere& sphere = m_Scene.Spheres[i];
-            ImGui::DragFloat3("Position", glm::value_ptr(sphere.Position), 0.1f);
-            ImGui::DragFloat("Radius", &sphere.Radius, 0.1f, 0.1f, std::numeric_limits<float>::max());
-            ImGui::DragInt("Material Index", &sphere.MaterialIndex, 0, m_Scene.Materials.size() - 1);
+            m_DidUIUpdate |= ImGui::DragFloat3("Position", glm::value_ptr(sphere.Position), 0.1f);
+            m_DidUIUpdate |= ImGui::DragFloat("Radius", &sphere.Radius, 0.1f, 0.1f, std::numeric_limits<float>::max());
+            m_DidUIUpdate |= ImGui::DragInt("Material Index", &sphere.MaterialIndex, 1, 0, m_Scene.Materials.size() - 1);
             ImGui::Separator();
 
             ImGui::PopID();
@@ -91,19 +101,19 @@ public:
             ImGui::PushID(i);
 
             Material& material = m_Scene.Materials[i];
-            ImGui::ColorEdit3("Albedo", glm::value_ptr(material.Albedo));
-            ImGui::DragFloat("Roughness", &material.Roughness, 0.01f, 0.0f, 1.0f);
-            ImGui::DragFloat("Metallic", &material.Roughness, 0.01f, 0.0f, 1.0f);
+            m_DidUIUpdate |= ImGui::ColorEdit3("Albedo", glm::value_ptr(material.Albedo));
+            m_DidUIUpdate |= ImGui::DragFloat("Roughness", &material.Roughness, 0.01f, 0.0f, 1.0f);
+            m_DidUIUpdate |= ImGui::DragFloat("Metallic", &material.Metallic, 0.01f, 0.0f, 1.0f);
             ImGui::Separator();
 
             ImGui::PopID();
         }
         
         ImGui::Text("Light");
-        ImGui::DragFloat3("Light Direction", glm::value_ptr(m_Scene.LightDirection), 0.01f, -1.0f, 1.0f);
+        m_DidUIUpdate |= ImGui::DragFloat3("Light Direction", glm::value_ptr(m_Scene.LightDirection), 0.01f, -1.0f, 1.0f);
 
         ImGui::Text("Background");
-        ImGui::ColorEdit4("Color", glm::value_ptr(m_Scene.BackgroundColor));
+        m_DidUIUpdate |= ImGui::ColorEdit4("Color", glm::value_ptr(m_Scene.BackgroundColor));
 
 		ImGui::End();
 
@@ -146,6 +156,8 @@ private:
 
     bool m_TogglePause = false;
     float m_LastRenderTime = 0.0f;
+
+    bool m_DidUIUpdate = false;
 
     uint32_t m_ViewportWidth = 0, m_ViewportHeight = 0;
 };
