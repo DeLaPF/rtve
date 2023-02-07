@@ -1,7 +1,6 @@
 # Directories
-debug/
-release/
 unixBuild/
+winBuild/
 
 # Auto generated
 .cache/

@@ -36,6 +36,7 @@ void Renderer::OnResize(uint32_t width, uint32_t height)
 
     delete[] m_AccumulationData;
     m_AccumulationData = new glm::vec4[width * height];
+    m_FrameIndex = 1;
 
     m_AspectRatio = (float)m_FinalImage->GetWidth() / (float)m_FinalImage->GetHeight();
 
@@ -109,10 +110,9 @@ glm::vec4 Renderer::RayGen(uint32_t x, uint32_t y)
 	ray.Origin = m_ActiveCamera->GetPosition();
     ray.Direction = m_ActiveCamera->GetRayDirections()[x + y * m_FinalImage->GetWidth()];
 
-    int bounces = 2;
     glm::vec3 color(0.0f);
     float multiplier = 1.0f;
-    for (int i = 0; i < bounces; i++)
+    for (int i = 0; i < m_Settings.Bounces; i++)
     {
         Renderer::HitPayload hit = TraceRay(ray);
         if (hit.HitDistance < 0.0f) {

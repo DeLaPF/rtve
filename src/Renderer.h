@@ -18,6 +18,7 @@ public:
     {
         bool Accumulate = true;
         bool Multithread = true;
+        int Bounces = 2;
     };
 
     Renderer() = default;

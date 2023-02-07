@@ -70,6 +70,7 @@ public:
             m_TogglePause = !m_TogglePause;
             m_DidUIUpdate = true;
         }
+        m_DidUIUpdate |= ImGui::DragInt("Bounces", &m_Renderer.GetSettings().Bounces, 1, 0, 10);
         m_DidUIUpdate |= ImGui::Checkbox("Multithread", &m_Renderer.GetSettings().Multithread);
         m_DidUIUpdate |= ImGui::Checkbox("Accumulate", &m_Renderer.GetSettings().Accumulate);
 		if (ImGui::Button("Reset Accumulate")) {
