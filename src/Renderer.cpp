@@ -3,7 +3,7 @@
 #include "Walnut/Image.h"
 #include "Walnut/Random.h"
 
-#include <execution>
+#include <thread>
 
 namespace Utils
 {
@@ -39,13 +39,6 @@ void Renderer::OnResize(uint32_t width, uint32_t height)
     m_FrameIndex = 1;
 
     m_AspectRatio = (float)m_FinalImage->GetWidth() / (float)m_FinalImage->GetHeight();
-
-    m_ImageHorizontalIter.resize(width);
-	m_ImageVerticalIter.resize(height);
-	for (uint32_t i = 0; i < width; i++)
-		m_ImageHorizontalIter[i] = i;
-	for (uint32_t i = 0; i < height; i++)
-		m_ImageVerticalIter[i] = i;
 }
 
 void Renderer::Render(const Scene& scene, const Camera& camera)
@@ -58,24 +51,29 @@ void Renderer::Render(const Scene& scene, const Camera& camera)
     }
     
     if (m_Settings.Multithread) {
-        std::for_each(std::execution::par, m_ImageVerticalIter.begin(), m_ImageVerticalIter.end(),
-        [this](uint32_t y)
+        std::vector<std::thread> threads;
+        for (uint32_t y = 0; y < m_FinalImage->GetHeight(); y++)
         {
-            std::for_each(std::execution::par, m_ImageHorizontalIter.begin(), m_ImageHorizontalIter.end(),
-            [this, y](uint32_t x)
-            {
-                glm::vec4 floatColor = RayGen(x, y);
-                m_AccumulationData[x + (y * m_FinalImage->GetWidth())] += floatColor;
-                glm::vec4 accumulatedColor = m_AccumulationData[x + (y * m_FinalImage->GetWidth())] / (float)m_FrameIndex;
+            threads.push_back(std::thread([this, y]() -> void {
+                for (uint32_t x = 0; x < m_FinalImage->GetWidth(); x++)
+                {
+                    glm::vec4 floatColor = RayGen(x, y);
+                    m_AccumulationData[x + (y * m_FinalImage->GetWidth())] += floatColor;
+                    glm::vec4 accumulatedColor = m_AccumulationData[x + (y * m_FinalImage->GetWidth())] / (float)m_FrameIndex;
 
-                if (m_Settings.Accumulate) {
-                    floatColor = glm::clamp(accumulatedColor, glm::vec4(0.0f), glm::vec4(1.0f));
-                } else {
-                    floatColor = glm::clamp(floatColor, glm::vec4(0.0f), glm::vec4(1.0f));
+                    if (m_Settings.Accumulate) {
+                        floatColor = glm::clamp(accumulatedColor, glm::vec4(0.0f), glm::vec4(1.0f));
+                    } else {
+                        floatColor = glm::clamp(floatColor, glm::vec4(0.0f), glm::vec4(1.0f));
+                    }
+                    m_ImageData[x + (y * m_FinalImage->GetWidth())] = Utils::FloatToABGR(floatColor);
                 }
-                m_ImageData[x + (y * m_FinalImage->GetWidth())] = Utils::FloatToABGR(floatColor);
-            });
-        });
+            }));
+        }
+        for (auto& thread : threads)
+        {
+            thread.join();
+        }
     } else {
         for (uint32_t y = 0; y < m_FinalImage->GetHeight(); y++)
         {

@@ -58,5 +58,4 @@ private:
     const Camera* m_ActiveCamera = nullptr;
 
     Settings m_Settings;
-    std::vector<uint32_t> m_ImageHorizontalIter, m_ImageVerticalIter;
 };
